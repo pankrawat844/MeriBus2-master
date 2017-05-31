@@ -111,7 +111,7 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
             case R.id.submit:
                 Payment payment = new Payment();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.container, payment);
+                ft.replace(R.id.container, payment).addToBackStack("");
                 ft.commit();
         }
     }

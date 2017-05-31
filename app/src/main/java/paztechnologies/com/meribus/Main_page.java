@@ -303,49 +303,53 @@ public class Main_page extends Fragment {
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(year, month, dayOfMonth);
-
+                int total_days=0;
                 start_date.setText(dateFormatter.format(calendar.getTime()));
                 if(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)==30) {
+
+
+                    for(int i=calendar.get(Calendar.DAY_OF_MONTH);i==30;i++){
+                        calendar.set(Calendar.DAY_OF_MONTH,i);
+                        if(calendar.get(Calendar.DAY_OF_MONTH)==Calendar.SUNDAY || calendar.get(Calendar.DAY_OF_MONTH)==Calendar.SATURDAY){
+
+                        }
+                        else{
+                            total_days+=1;
+                        }
+
+                    }
                     int per_day_total=total_amount/22;
+                    amount.setText(String.valueOf(per_day_total * total_days));
+                }
+                else if(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)==29)
+                {
+                    for(int i=calendar.get(Calendar.DAY_OF_MONTH);i==29;i++){
+                        calendar.set(Calendar.DAY_OF_MONTH,i);
+                        if(calendar.get(Calendar.DAY_OF_MONTH)==Calendar.SUNDAY || calendar.get(Calendar.DAY_OF_MONTH)==Calendar.SATURDAY){
 
-                    if (calendar.get(Calendar.DAY_OF_MONTH) <= 7) {
-                        int date = 30 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 8;
-                        amount.setText(String.valueOf(per_day_total * date));
-                    } else if (calendar.get(Calendar.DAY_OF_MONTH) <= 14) {
-                        int date = 30 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 6;
-                        amount.setText(String.valueOf(per_day_total * date));
-                    } else if (calendar.get(Calendar.DAY_OF_MONTH) <= 21) {
-                        int date = 30 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 4;
-                        amount.setText(String.valueOf(per_day_total * date));
-                    } else if (calendar.get(Calendar.DAY_OF_MONTH) <= 30) {
-                        int date = 30 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 2;
-                        amount.setText(String.valueOf(per_day_total * date));
+                        }
+                        else{
+                            total_days+=1;
+                        }
+
                     }
-                }else {
+                    int per_day_total=total_amount/21;
+                    amount.setText(String.valueOf(per_day_total * total_days));
+                }
+                    else
+                 {
+                    for(int i=calendar.get(Calendar.DAY_OF_MONTH);i==31;i++){
+                        calendar.set(Calendar.DAY_OF_MONTH,i);
+                        if(calendar.get(Calendar.DAY_OF_MONTH)==Calendar.SUNDAY || calendar.get(Calendar.DAY_OF_MONTH)==Calendar.SATURDAY){
+
+                        }
+                        else{
+                            total_days+=1;
+                        }
+
+                    }
                     int per_day_total=total_amount/23;
-
-                    if (calendar.get(Calendar.DAY_OF_MONTH) <= 7) {
-                        int date = 31 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 8;
-                        amount.setText(String.valueOf(per_day_total * date));
-                    } else if (calendar.get(Calendar.DAY_OF_MONTH) <= 14) {
-                        int date = 31 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 6;
-
-                        amount.setText(String.valueOf(per_day_total * date));
-                    } else if (calendar.get(Calendar.DAY_OF_MONTH) <= 21) {
-                        int date = 31 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 4;
-                        amount.setText(String.valueOf(per_day_total * date));
-                    } else if (calendar.get(Calendar.DAY_OF_MONTH) <= 31) {
-                        int date = 31 - calendar.get(Calendar.DAY_OF_MONTH);
-                        date = date - 2;
-                        amount.setText(String.valueOf(per_day_total * date));
-                    }
+                    amount.setText(String.valueOf(per_day_total * total_days));
                 }
             }
         }, newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));

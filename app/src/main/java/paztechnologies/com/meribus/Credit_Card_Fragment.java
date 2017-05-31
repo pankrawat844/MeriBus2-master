@@ -95,9 +95,11 @@ public class Credit_Card_Fragment extends Fragment {
 
                 // launch webview
                 payuConfig = new PayuConfig();
-                payuConfig.setEnvironment(PayuConstants.STAGING_ENV);
+                payuConfig.setEnvironment(PayuConstants.PRODUCTION_ENV);
 
-                generateHashFromServer(mPaymentParams);
+              //  generateHashFromServer(mPaymentParams);
+                String salt="mDOpq5k3";
+                generateHashFromSDK(mPaymentParams,salt);
             }
 
         });
@@ -145,6 +147,7 @@ public class Credit_Card_Fragment extends Fragment {
         // lets make an api call
         GetHashesFromServerTask getHashesFromServerTask = new GetHashesFromServerTask();
         getHashesFromServerTask.execute(postParams);
+
     }
 
     public void launchSdkUI(PayuHashes payuHashes) {
@@ -160,7 +163,7 @@ public class Credit_Card_Fragment extends Fragment {
         if (mPostData != null && mPostData.getCode() == PayuErrors.NO_ERROR) {
 
             PayuConfig payuConfig= new PayuConfig();
-            payuConfig.setEnvironment(PayuConstants.STAGING_ENV);
+            payuConfig.setEnvironment(PayuConstants.PRODUCTION_ENV);
             payuConfig.setData(mPostData.getResult());
            // mPaymentParams.setHash(payuHashes.getPaymentHash());
 
@@ -379,4 +382,76 @@ public class Credit_Card_Fragment extends Fragment {
             launchSdkUI(payuHashes);
         }
     }
+
+
+    public void generateHashFromSDK(PaymentParams mPaymentParams, String salt) {
+        PayuHashes payuHashes = new PayuHashes();
+        PostData postData = new PostData();
+
+        // payment Hash;
+        checksum = null;
+        checksum = new PayUChecksum();
+        checksum.setAmount(mPaymentParams.getAmount());
+        checksum.setKey(mPaymentParams.getKey());
+        checksum.setTxnid(mPaymentParams.getTxnId());
+        checksum.setEmail(mPaymentParams.getEmail());
+        checksum.setSalt(salt);
+        checksum.setProductinfo(mPaymentParams.getProductInfo());
+        checksum.setFirstname(mPaymentParams.getFirstName());
+        checksum.setUdf1(mPaymentParams.getUdf1());
+        checksum.setUdf2(mPaymentParams.getUdf2());
+        checksum.setUdf3(mPaymentParams.getUdf3());
+        checksum.setUdf4(mPaymentParams.getUdf4());
+        checksum.setUdf5(mPaymentParams.getUdf5());
+
+        postData = checksum.getHash();
+        if (postData.getCode() == PayuErrors.NO_ERROR) {
+            payuHashes.setPaymentHash(postData.getResult());
+        }
+
+        // checksum for payemnt related details
+        // var1 should be either user credentials or default
+        String var1 = mPaymentParams.getUserCredentials() == null ? PayuConstants.DEFAULT : mPaymentParams.getUserCredentials();
+        String key = mPaymentParams.getKey();
+
+        if ((postData = calculateHash(key, PayuConstants.PAYMENT_RELATED_DETAILS_FOR_MOBILE_SDK, var1, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR) // Assign post data first then check for success
+            payuHashes.setPaymentRelatedDetailsForMobileSdkHash(postData.getResult());
+        //vas
+        if ((postData = calculateHash(key, PayuConstants.VAS_FOR_MOBILE_SDK, PayuConstants.DEFAULT, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR)
+            payuHashes.setVasForMobileSdkHash(postData.getResult());
+
+        // getIbibocodes
+        if ((postData = calculateHash(key, PayuConstants.GET_MERCHANT_IBIBO_CODES, PayuConstants.DEFAULT, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR)
+            payuHashes.setMerchantIbiboCodesHash(postData.getResult());
+
+        if (!var1.contentEquals(PayuConstants.DEFAULT)) {
+            // get user card
+            if ((postData = calculateHash(key, PayuConstants.GET_USER_CARDS, var1, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR) // todo rename storedc ard
+                payuHashes.setStoredCardsHash(postData.getResult());
+            // save user card
+            if ((postData = calculateHash(key, PayuConstants.SAVE_USER_CARD, var1, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR)
+                payuHashes.setSaveCardHash(postData.getResult());
+            // delete user card
+            if ((postData = calculateHash(key, PayuConstants.DELETE_USER_CARD, var1, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR)
+                payuHashes.setDeleteCardHash(postData.getResult());
+            // edit user card
+            if ((postData = calculateHash(key, PayuConstants.EDIT_USER_CARD, var1, salt)) != null && postData.getCode() == PayuErrors.NO_ERROR)
+                payuHashes.setEditCardHash(postData.getResult());
+        }
+
+        if (mPaymentParams.getOfferKey() != null) {
+            postData = calculateHash(key, PayuConstants.OFFER_KEY, mPaymentParams.getOfferKey(), salt);
+            if (postData.getCode() == PayuErrors.NO_ERROR) {
+                payuHashes.setCheckOfferStatusHash(postData.getResult());
+            }
+        }
+
+        if (mPaymentParams.getOfferKey() != null && (postData = calculateHash(key, PayuConstants.CHECK_OFFER_STATUS, mPaymentParams.getOfferKey(), salt)) != null && postData.getCode() == PayuErrors.NO_ERROR) {
+            payuHashes.setCheckOfferStatusHash(postData.getResult());
+        }
+
+        // we have generated all the hases now lest launch sdk's ui
+        launchSdkUI(payuHashes);
+    }
+
 }

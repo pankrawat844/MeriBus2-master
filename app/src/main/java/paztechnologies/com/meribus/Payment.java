@@ -23,9 +23,9 @@ public class Payment extends Fragment {
 
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("CREDIT CARD"));
-        tabLayout.addTab(tabLayout.newTab().setText("NET BANKING"));
+        tabLayout.addTab(tabLayout.newTab().setText("DEBIT CARD"));
         //    tabLayout.addTab(tabLayout.newTab().setText("WALLET"));
-        tabLayout.addTab(tabLayout.newTab().setText("CASH ON DELIVERY"));
+        tabLayout.addTab(tabLayout.newTab().setText("NET BANKING"));
 
         final ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);
 
@@ -66,13 +66,13 @@ public class Payment extends Fragment {
 
             switch (position) {
                 case 0:
-                    Credit_Card_Fragment tab1 = new Credit_Card_Fragment();
+                    Credit_Card_Fragment_new tab1 = new Credit_Card_Fragment_new();
                     return tab1;
                 case 1:
-                    Net_Banking tab2 = new Net_Banking();
+                    Debit_Card_Fragment tab2 = new Debit_Card_Fragment();
                     return tab2;
                 case 2:
-                    COD_Fragment tab3 = new COD_Fragment();
+                    Net_Banking tab3 = new Net_Banking();
                     return tab3;
 
 
