@@ -65,6 +65,24 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
     private Button payment;
     private TextView start_time,end_time,select_route,pickup_point,drop_point,amount;
     SharedPreferences sharedPreferences;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -109,9 +127,10 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.submit:
+
                 Payment payment = new Payment();
                 FragmentTransaction ft = getFragmentManager().beginTransaction();
-                ft.replace(R.id.container, payment).addToBackStack("");
+                ft.replace(R.id.container, payment);
                 ft.commit();
         }
     }
@@ -119,7 +138,7 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
     @Override
     public void onDirectionSuccess(Direction direction, String rawBody) {
         //  Snackbar.make(getView(), "Success with status : " + direction.getStatus(), Snackbar.LENGTH_SHORT).show();
-        Toast.makeText(getActivity(), " " + direction.getStatus(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), " " + direction.getStatus(), Toast.LENGTH_SHORT).show();
 
         if (direction.isOK()) {
             googleMap.addMarker(new MarkerOptions().position(curr));
@@ -219,7 +238,10 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
         return curr;
     }
 
-
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+    }
 
     public  void getLocationInfo_des(String address) {
         StringBuilder stringBuilder = new StringBuilder();

@@ -5,8 +5,28 @@ package paztechnologies.com.meribus.model;
  */
 
 public class Pay_Per_Day_Model {
+    String select,s_no,date,total_seat,trip_type,seats,per_seat_total,per_seat_price;
 
-    String select,s_no,date,total_seat,trip_type,seats,per_seat_total;
+    public Pay_Per_Day_Model(String select, String s_no, String date, String total_seat, String trip_type, String seats, String per_seat_total,String per_seat_price) {
+        this.select = select;
+        this.s_no = s_no;
+        this.date = date;
+        this.total_seat = total_seat;
+        this.trip_type = trip_type;
+        this.seats = seats;
+        this.per_seat_total = per_seat_total;
+        this.per_seat_price=per_seat_price;
+    }
+
+    public String getPer_seat_price() {
+        return per_seat_price;
+    }
+
+    public void setPer_seat_price(String per_seat_price) {
+        this.per_seat_price = per_seat_price;
+    }
+
+
 
     public String getSelect() {
         return select;

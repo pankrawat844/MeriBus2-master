@@ -22,6 +22,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,88 +56,189 @@ public class Book_Per_Day extends Fragment {
     DatePickerDialog start_date_picker, end_date_picker;
     SimpleDateFormat dateFormatter;
     TextView start_date,amount;
-    List<String> pickupid_array;
+    List<String> pickupid_array,start_time_id,end_time_id;
     SharedPreferences sp;
     int total_amount;
+    ToggleButton non_ac_toggle,ac_toggle,cab_toggle;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.pay_per_day, container, false);
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
-
+        sp = getActivity().getSharedPreferences("app", 0);
         progressDialog = new ProgressDialog(getActivity());
         init(view);
         new  Start_Shift_Time().execute();
+
+        ac_toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                non_ac_toggle.setChecked(false);
+                cab_toggle.setChecked(false);
+            }
+        });
+        non_ac_toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ac_toggle.setChecked(false);
+                cab_toggle.setChecked(false);
+
+            }
+        });
+
+        cab_toggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ac_toggle.setChecked(false);
+                non_ac_toggle.setChecked(false);
+            }
+        });
+
+
         place_ride.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sp = getActivity().getSharedPreferences("app", 0);
+
                 SharedPreferences.Editor editor = sp.edit();
-//                if(seat_type.equals("Both Pickup and Drop")) {
-//                    if (select_start_time.getSelectedItem() != null && select_end_time.getSelectedItem() != null && select_route.getSelectedItem() != null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null && start_date.getText().length() != 0) {
-//
-//                        editor.putString("start_time", select_start_time.getSelectedItem().toString());
-//                        editor.putString("end_time", select_end_time.getSelectedItem().toString());
-//
-//                        editor.putString("route_name", select_route.getSelectedItem().toString());
-//                        editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
-//                        editor.putString("pick_point", current_location.getSelectedItem().toString());
-//                        editor.putString("drop_point", des_location.getSelectedItem().toString());
-//                        editor.putString("date", start_date.getText().toString());
-//                        editor.putString("amount",amount.getText().toString());
-//                        editor.commit();
-//                        Ride_Detail ride_detail = new Ride_Detail();
-//                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-//                        fragmentTransaction.replace(R.id.container, ride_detail);
-//                        fragmentTransaction.commit();
-//                    } else {
-//
-//                        Toast.makeText(getActivity(), "All Fields are mandatory,Please Fill All Details", 3).show();
-//                    }
-//                }else if(seat_type.equals("Drop")){
-//                    if ( select_end_time.getSelectedItem() != null && select_route.getSelectedItem()!= null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null && start_date.getText().length() != 0) {
-//                        editor.putString("end_time", select_end_time.getSelectedItem().toString());
-//                        editor.putString("route_name",select_route.getSelectedItem().toString());
-//                        editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
-//                        editor.putString("pick_point",current_location.getSelectedItem().toString());
-//                        editor.putString("drop_point",des_location.getSelectedItem().toString());
-//                        editor.putString("date", start_date.getText().toString());
-//                        editor.putString("amount",amount.getText().toString());
-//                        editor.commit();
-//                        Ride_Detail ride_detail = new Ride_Detail();
-//                        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-//                        fragmentTransaction.replace(R.id.container, ride_detail).addToBackStack(null);
-//                        fragmentTransaction.commit();
-//                    }else {
-//
-//                        Toast.makeText(getActivity(), "All Fields are mandatory,Please Fill All Details", 3).show();
-//                    }
-//                }else if(seat_type.equals("Pick Up")){
-//                    if (select_start_time.getSelectedItem() != null  && select_route.getSelectedItem() != null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null && start_date.getText().length() != 0) {
-//
-//
-//                        editor.putString("start_time", select_start_time.getSelectedItem().toString());
-//
-//                        editor.putString("route_name", select_route.getSelectedItem().toString());
-//                        editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
-//                        editor.putString("pick_point", current_location.getSelectedItem().toString());
-//                        editor.putString("drop_point", des_location.getSelectedItem().toString());
-//                        editor.putString("date", start_date.getText().toString());
-//                        editor.putString("amount",amount.getText().toString());
-//                        editor.commit();
-//                        Ride_Detail ride_detail = new Ride_Detail();
-//                        FragmentTransaction fragmentTransaction = getChildFragmentManager().beginTransaction();
-//                        fragmentTransaction.replace(R.id.container, ride_detail).addToBackStack("");
-//                        fragmentTransaction.commit();
-//                    } else {
-//
-//                        Toast.makeText(getActivity(), "All Fields are mandatory,Please Fill All Details", 3).show();
-//                    }
-               // }
-                Booking_seat ride_detail = new Booking_seat();
-                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.container, ride_detail);
-                fragmentTransaction.commit();
+                Calendar calendar = Calendar.getInstance();
+
+                int total_days=0,per_day_total=0;
+
+                start_date.setText(dateFormatter.format(calendar.getTime()));
+                if(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)==30) {
+
+
+                    for(int i=calendar.get(Calendar.DAY_OF_MONTH);i<=30;i++){
+                        calendar.set(Calendar.DAY_OF_MONTH,i);
+
+                        if(calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY){
+
+                        }
+                        else{
+                            total_days+=1;
+                        }
+
+                    }
+                     per_day_total=(int)(total_amount/22)+1;
+
+                    //amount.setText(String.valueOf(per_day_total * total_days));
+                }
+                else if(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)<=29)
+                {
+                    for(int i=calendar.get(Calendar.DAY_OF_MONTH);i==29;i++){
+                        calendar.set(Calendar.DAY_OF_MONTH,i);
+                        if(calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY){
+
+                        }
+                        else{
+                            total_days+=1;
+                        }
+
+                    }
+                     per_day_total=(int)(total_amount/21)+1;
+                    //amount.setText(String.valueOf(per_day_total * total_days));
+                }
+                else
+                {
+                    for(int i=calendar.get(Calendar.DAY_OF_MONTH);i<=31;i++){
+                        calendar.set(Calendar.DAY_OF_MONTH,i);
+                        if(calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SUNDAY || calendar.get(Calendar.DAY_OF_WEEK)==Calendar.SATURDAY){
+
+                        }
+                        else{
+                            total_days+=1;
+                        }
+
+                    }
+                     per_day_total=(int)(total_amount/23)+1;
+                   // amount.setText(String.valueOf(per_day_total * total_days));
+                }
+
+
+                if(seat_type.equals("Both Pickup and Drop")) {
+                    if (select_start_time.getSelectedItem() != null && select_end_time.getSelectedItem() != null && select_route.getSelectedItem() != null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null ) {
+
+                        editor.putString("start_time", select_start_time.getSelectedItem().toString());
+                        editor.putString("end_time", select_end_time.getSelectedItem().toString());
+
+                        editor.putString("route_name", select_route.getSelectedItem().toString());
+                        editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
+                        editor.putString("pick_point", current_location.getSelectedItem().toString());
+                        editor.putString("drop_point", des_location.getSelectedItem().toString());
+                        editor.putString("date", start_date.getText().toString());
+                        editor.putString("amount",amount.getText().toString());
+                        editor.commit();
+                        Booking_seat ride_detail = new Booking_seat();
+                        Bundle args = new Bundle();
+                        args.putString("_routeId",route_id.get(select_route.getSelectedItemPosition() - 1));
+                        args.putString("StartShiftTime",start_time_id.get(select_start_time.getSelectedItemPosition()-1));
+                        args.putString("EndShiftTime",end_time_id.get(select_end_time.getSelectedItemPosition()-1));
+                        args.putString("Seattype",seat_type);
+                        args.putString("perseat_price",String.valueOf(per_day_total));
+                        ride_detail.setArguments(args);
+                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.container, ride_detail).addToBackStack("");
+                        fragmentTransaction.commit();
+                    } else {
+
+                        Toast.makeText(getActivity(), "All Fields are mandatory,Please Fill All Details", 3).show();
+                    }
+                }else if(seat_type.equals("Drop")){
+                    if ( select_end_time.getSelectedItem() != null && select_route.getSelectedItem()!= null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null ) {
+                        editor.putString("end_time", select_end_time.getSelectedItem().toString());
+                        editor.putString("route_name",select_route.getSelectedItem().toString());
+                        editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
+                        editor.putString("pick_point",current_location.getSelectedItem().toString());
+                        editor.putString("drop_point",des_location.getSelectedItem().toString());
+                        editor.putString("date", start_date.getText().toString());
+                        editor.putString("amount",amount.getText().toString());
+                        editor.commit();
+                        Booking_seat ride_detail = new Booking_seat();
+                        Bundle args = new Bundle();
+                        args.putString("_routeId",route_id.get(select_route.getSelectedItemPosition() - 1));
+                        //args.putString("StartShiftTime",start_time_id.get(select_start_time.getSelectedItemPosition()-1));
+                        args.putString("EndShiftTime",end_time_id.get(select_end_time.getSelectedItemPosition()-1));
+                        args.putString("Seattype",seat_type);
+                        args.putString("perseat_price",String.valueOf(per_day_total));
+                        ride_detail.setArguments(args);
+                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.container, ride_detail).addToBackStack("");
+                        fragmentTransaction.commit();
+                    }else {
+
+                        Toast.makeText(getActivity(), "All Fields are mandatory,Please Fill All Details", 3).show();
+                    }
+                }else if(seat_type.equals("Pick Up")){
+                    if (select_start_time.getSelectedItem() != null  && select_route.getSelectedItem() != null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null ) {
+
+
+                        editor.putString("start_time", select_start_time.getSelectedItem().toString());
+
+                        editor.putString("route_name", select_route.getSelectedItem().toString());
+                        editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
+                        editor.putString("pick_point", current_location.getSelectedItem().toString());
+                        editor.putString("drop_point", des_location.getSelectedItem().toString());
+                        editor.putString("date", start_date.getText().toString());
+                        editor.putString("amount",amount.getText().toString());
+                        editor.commit();
+                        Booking_seat ride_detail = new Booking_seat();
+                        Bundle args = new Bundle();
+                        args.putString("_routeId",route_id.get(select_route.getSelectedItemPosition() - 1));
+                        args.putString("StartShiftTime",start_time_id.get(select_start_time.getSelectedItemPosition()-1));
+                      //  args.putString("EndShiftTime",end_time_id.get(select_end_time.getSelectedItemPosition()-1));
+                        args.putString("Seattype",seat_type);
+                        args.putString("perseat_price",String.valueOf(per_day_total));
+                        ride_detail.setArguments(args);
+                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.container, ride_detail).addToBackStack("");
+                        fragmentTransaction.commit();
+                    } else {
+
+                        Toast.makeText(getActivity(), "All Fields are mandatory,Please Fill All Details", 3).show();
+                    }
+                }
+
             }
         });
 
@@ -247,8 +349,11 @@ public class Book_Per_Day extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                new  Drop_Point().execute();
-
+                if (seat_type.equalsIgnoreCase("Drop")) {
+                    new Drop_Point_when_drop().execute();
+                }else{
+                    new Drop_Point().execute();
+                }
             }
 
             @Override
@@ -260,7 +365,7 @@ public class Book_Per_Day extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(current_location.getSelectedItem()!=null) {
-                    new  Rate().execute();
+                    new Rate().execute();
                 }
             }
 
@@ -349,6 +454,9 @@ public class Book_Per_Day extends Fragment {
         drop = (RadioButton) v.findViewById(R.id.drop);
         place_ride = (Button) v.findViewById(R.id.submit);
         start_date = (TextView) v.findViewById(R.id.start_date);
+        non_ac_toggle=(ToggleButton)v.findViewById(R.id.nonac_toggle);
+        ac_toggle=(ToggleButton)v.findViewById(R.id.ac_toggle);
+        cab_toggle=(ToggleButton)v.findViewById(R.id.e_riksha_toggle);
         amount=(TextView)v.findViewById(R.id.amount);
         ArrayAdapter<CharSequence> current_adapter = ArrayAdapter.createFromResource(getActivity(), R.array.arr, R.layout.support_simple_spinner_dropdown_item);
         // current_location.setAdapter(new NothingSelectedSpinnerAdapter(current_adapter, R.layout.nothing_selected_pickup, getActivity()));
@@ -403,18 +511,18 @@ public class Book_Per_Day extends Fragment {
 
     private void setSelect_route() {
         try {
-            SoapObject request = new SoapObject("http://tempuri.org/", "getrouteList");
+            SoapObject request = new SoapObject("http://tempuri.org/", "payperday_pps_getEndShift_RouteBind");
 
             PropertyInfo Orderid = new PropertyInfo();
             Orderid.setType(android.R.string.class);
             Orderid.setName("shifttime");
-            Orderid.setValue(select_start_time.getSelectedItem().toString());
+            Orderid.setValue(start_time_id.get(select_start_time.getSelectedItemPosition()-1));
             request.addProperty(Orderid);
 
             PropertyInfo aa123 = new PropertyInfo();
             aa123.setType(android.R.string.class);
             aa123.setName("EndTime");
-            aa123.setValue(select_end_time.getSelectedItem().toString());
+            aa123.setValue(end_time_id.get(select_end_time.getSelectedItemPosition()-1));
             request.addProperty(aa123);
 
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -423,7 +531,7 @@ public class Book_Per_Day extends Fragment {
             HttpTransportSE androidHttpTransport =
                     new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
             androidHttpTransport.debug = true;
-            androidHttpTransport.call("http://tempuri.org/IService1/getrouteList", envelope);
+            androidHttpTransport.call("http://tempuri.org/IService1/payperday_pps_getEndShift_RouteBind", envelope);
             SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
 
             route_response = soapPrimitive.toString();
@@ -437,12 +545,12 @@ public class Book_Per_Day extends Fragment {
 
     private void setSelect_route_pick() {
         try {
-            SoapObject request = new SoapObject("http://tempuri.org/", "_getRoute_Start_ShiftWiseMonthly_when_radio_button_pickup");
+            SoapObject request = new SoapObject("http://tempuri.org/", "payperday_pps_getStartShift_RouteBind");
 
             PropertyInfo Orderid = new PropertyInfo();
             Orderid.setType(android.R.string.class);
             Orderid.setName("shifttime");
-            Orderid.setValue(select_start_time.getSelectedItem().toString());
+            Orderid.setValue(start_time_id.get(select_start_time.getSelectedItemPosition()-1));
             request.addProperty(Orderid);
 
 
@@ -452,7 +560,7 @@ public class Book_Per_Day extends Fragment {
             HttpTransportSE androidHttpTransport =
                     new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
             androidHttpTransport.debug = true;
-            androidHttpTransport.call("http://tempuri.org/IService1/_getRoute_Start_ShiftWiseMonthly_when_radio_button_pickup", envelope);
+            androidHttpTransport.call("http://tempuri.org/IService1/payperday_pps_getStartShift_RouteBind", envelope);
             SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
 
             route_response = soapPrimitive.toString();
@@ -471,14 +579,10 @@ public class Book_Per_Day extends Fragment {
             PropertyInfo Orderid = new PropertyInfo();
             Orderid.setType(android.R.string.class);
             Orderid.setName("shifttime");
-            Orderid.setValue("");
+            Orderid.setValue(end_time_id.get(select_end_time.getSelectedItemPosition()-1));
             request.addProperty(Orderid);
 
-            PropertyInfo aa123 = new PropertyInfo();
-            aa123.setType(android.R.string.class);
-            aa123.setName("EndTime");
-            aa123.setValue(select_end_time.getSelectedItem().toString());
-            request.addProperty(aa123);
+
 
             SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
             envelope.dotNet = true;
@@ -500,7 +604,7 @@ public class Book_Per_Day extends Fragment {
 
     private void setpickup_point() {
         try {
-            SoapObject request = new SoapObject("http://tempuri.org/", "getPickUpList");
+            SoapObject request = new SoapObject("http://tempuri.org/", "PPS_BindPickPoint_Dropdown_GetDropPoint__when_Drop_Booking_not");
 
             PropertyInfo Orderid = new PropertyInfo();
             Orderid.setType(android.R.string.class);
@@ -521,7 +625,7 @@ public class Book_Per_Day extends Fragment {
             HttpTransportSE androidHttpTransport =
                     new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
             androidHttpTransport.debug = true;
-            androidHttpTransport.call("http://tempuri.org/IService1/getPickUpList", envelope);
+            androidHttpTransport.call("http://tempuri.org/IService1/PPS_BindPickPoint_Dropdown_GetDropPoint__when_Drop_Booking_not", envelope);
             SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
 
             pickup_response = soapPrimitive.toString();
@@ -600,11 +704,13 @@ public class Book_Per_Day extends Fragment {
             try {
                 List<String> time = new ArrayList<>();
                 //   Toast.makeText(getActivity(),s,3).show();
+                start_time_id= new ArrayList<>();
                 JSONArray jsonArray = new JSONArray(s);
                 JSONArray arr = jsonArray.getJSONArray(0);
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("StartShiftTime"));
+                    start_time_id.add(jsonObject.getString("ShiftId"));
                 }
                 ArrayAdapter<String> start_adapter = new ArrayAdapter<String>(getActivity(), R.layout.nothing_selected_drop_point, time);
                 start_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -644,12 +750,14 @@ public class Book_Per_Day extends Fragment {
 
             try {
                 List<String> time = new ArrayList<>();
+                end_time_id=new ArrayList<>();
                 //  Toast.makeText(getActivity(),s,3).show();
                 JSONArray jsonArray = new JSONArray(s);
                 JSONArray arr = jsonArray.getJSONArray(0);
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("EndShiftTime"));
+                    end_time_id.add(jsonObject.getString("ShiftId"));
                 }
                 ArrayAdapter<String> end_adapter = new ArrayAdapter<String>(getActivity(), R.layout.select_end_time, time);
                 end_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -697,7 +805,7 @@ public class Book_Per_Day extends Fragment {
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("RouteName"));
-                    route_id.add(jsonObject.getString("routeId"));
+                    route_id.add(jsonObject.getString("RouteID"));
                 }
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(),R.layout.select_route_list, time);
                 route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -745,7 +853,7 @@ public class Book_Per_Day extends Fragment {
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("RouteName"));
-                    route_id.add(jsonObject.getString("routeId"));
+                    route_id.add(jsonObject.getString("RouteID"));
                 }
 
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.select_route_list, time);
@@ -793,7 +901,7 @@ public class Book_Per_Day extends Fragment {
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("RouteName"));
-                    route_id.add(jsonObject.getString("routeId"));
+                    route_id.add(jsonObject.getString("RouteID"));
                 }
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.select_route_list, time);
                 route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -994,7 +1102,7 @@ public class Book_Per_Day extends Fragment {
 
         private void setpickup_point_when_pickup() {
             try {
-                SoapObject request = new SoapObject("http://tempuri.org/", "_getPickup_Point_When_RadioButton_Drop");
+                SoapObject request = new SoapObject("http://tempuri.org/", "PPS_BindPickPoint_Dropdown_GetDropPoint__when_Drop_Booking_not");
 
                 PropertyInfo Orderid = new PropertyInfo();
                 Orderid.setType(android.R.string.class);
@@ -1015,7 +1123,7 @@ public class Book_Per_Day extends Fragment {
                 HttpTransportSE androidHttpTransport =
                         new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
                 androidHttpTransport.debug = true;
-                androidHttpTransport.call("http://tempuri.org/IService1/_getPickup_Point_When_RadioButton_Drop", envelope);
+                androidHttpTransport.call("http://tempuri.org/IService1/PPS_BindPickPoint_Dropdown_GetDropPoint__when_Drop_Booking_not", envelope);
                 SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
 
                 pickup_response = soapPrimitive.toString();
@@ -1171,6 +1279,90 @@ public class Book_Per_Day extends Fragment {
 
     }
 
+    private class Drop_Point_when_drop extends AsyncTask<String[], Void, String> {
+
+        ProgressDialog dialog;
+        private Login activity;
+        private String soapAction;
+        private String methodName;
+        private String paramsName;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(getActivity());
+            dialog.setMessage("Loading....");
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String[]... params) {
+            setdrop_point_when_drop();
+            return drop_response;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            //Log.e("resulttttt",s);
+            dialog.dismiss();
+
+            try {
+                List<String> time = new ArrayList<>();
+                //   Toast.makeText(getActivity(),s,3).show();
+                JSONArray jsonArray = new JSONArray(s);
+                JSONArray arr = jsonArray.getJSONArray(0);
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject jsonObject = arr.getJSONObject(i);
+                    time.add(jsonObject.getString("PickUpName"));
+                }
+                ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.nothing_selected_drop_point, time);
+                route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                route_adapter.notifyDataSetChanged();
+                des_location.setAdapter(new NothingSelectedSpinnerAdapter(route_adapter, R.layout.nothing_selected_drop_point, getContext()));
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void setdrop_point_when_drop() {
+        try {
+            SoapObject request = new SoapObject("http://tempuri.org/", "PPS_BinddropPoint_Dropdown_GetPickupPoint_when_Drop_Booking");
+
+            PropertyInfo Orderid = new PropertyInfo();
+            Orderid.setType(android.R.string.class);
+            Orderid.setName("_routeId");
+            Orderid.setValue(route_id.get(select_route.getSelectedItemPosition() - 1));
+            request.addProperty(Orderid);
+
+            PropertyInfo aa123 = new PropertyInfo();
+            aa123.setType(android.R.string.class);
+            aa123.setName("Seattype");
+            aa123.setValue(seat_type);
+            request.addProperty(aa123);
+            //Toast.makeText(getActivity(),route_id.get(select_route.getSelectedItemPosition())+" "+seat_type,3).show();
+
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+            envelope.dotNet = true;
+            envelope.setOutputSoapObject(request);
+            HttpTransportSE androidHttpTransport =
+                    new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
+            androidHttpTransport.debug = true;
+            androidHttpTransport.call("http://tempuri.org/IService1/PPS_BinddropPoint_Dropdown_GetPickupPoint_when_Drop_Booking", envelope);
+            SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
+            drop_response = soapPrimitive.toString();
+            Log.e("TAG", "Soap primitive1" + drop_response);
+        } catch (SocketTimeoutException e) {
+
+        } catch (Exception e) {
+            Log.e("TAG", "Soap Exception" + e.toString());
+        }
+
+    }
 
     private class Rate_Drop extends AsyncTask<String[], Void, String> {
 

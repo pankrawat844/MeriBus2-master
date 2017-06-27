@@ -46,7 +46,7 @@ import java.util.Random;
 public class Signup extends AppCompatActivity {
     AwesomeValidation mAwesomeValidation;
     Button register;
-    String strResponce, refferal_response;
+    String strResponce, refferal_response,duplicater_response;
     EditText username, email, phoneno, password, refferal;
     RadioGroup gender;
     ImageView refferal_btn;
@@ -65,10 +65,7 @@ public class Signup extends AppCompatActivity {
 
                 if (connectivity.isNetworkAvilable(Signup.this)) {
                     // new Call_Service().execute();
-                    Random random= new Random();
-                    randomInt = random.nextInt(100000);
-
-                    otp_code();
+                   new Check_Duplicate().execute();
                 } else {
                     //If login fails
                     Toast.makeText(Signup.this, "Internet is not Connected,Please Try Again", Toast.LENGTH_LONG).show();
@@ -204,6 +201,43 @@ public class Signup extends AppCompatActivity {
         }
     }
 
+
+
+    private void check_duplicate() {
+        try {
+            SoapObject request = new SoapObject("http://tempuri.org/", "checkDuplicateRegister");
+
+
+            PropertyInfo refer = new PropertyInfo();
+            refer.setType(android.R.string.class);
+            refer.setName("_email");
+            refer.setValue(email.getText().toString());
+            request.addProperty(refer);
+
+            PropertyInfo refer1 = new PropertyInfo();
+            refer1.setType(android.R.string.class);
+            refer1.setName("_mobile");
+            refer1.setValue(phoneno.getText().toString());
+            request.addProperty(refer1);
+
+            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+            envelope.dotNet = true;
+            envelope.setOutputSoapObject(request);
+            HttpTransportSE androidHttpTransport =
+                    new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
+            androidHttpTransport.debug = true;
+
+            androidHttpTransport.call("http://tempuri.org/IService1/checkDuplicateRegister", envelope);
+            SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
+
+            duplicater_response = soapPrimitive.toString();
+            Log.e("TAG", "Soap primitive1" + duplicater_response);
+        } catch (SocketTimeoutException e) {
+
+        } catch (Exception e) {
+            Log.e("TAG", "Soap Exception" + e.toString());
+        }
+    }
 //    private class Call_Service extends AsyncTask<String[], Void, String> {
 //        ProgressDialog progressDialog = new ProgressDialog(Signup.this);
 //        private Login activity;
@@ -330,11 +364,56 @@ public class Signup extends AppCompatActivity {
 
 
 
+    private class Check_Duplicate extends AsyncTask<String[], Void, String> {
+        ProgressDialog progressDialog = new ProgressDialog(Signup.this);
+        private Login activity;
+        private String soapAction;
+        private String methodName;
+        private String paramsName;
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.setMessage("Loading....");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String[]... params) {
+            check_duplicate();
+            return duplicater_response;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            //Log.e("resulttttt",s);
+            progressDialog.dismiss();
+
+            try {
+                if (s.contains("Error")) {
+                    Toast.makeText(getApplicationContext(),"Already Registered with Meribus.Com!!!, Please Login with your EmailId And Password.",3).show();
+
+                } else {
+                    Random random= new Random();
+                    randomInt = random.nextInt(100000);
+
+                    otp_code();
+                  //  Toast.makeText(getApplicationContext(),"Refferal Code Saved.",3).show();
+                }
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            }
+        }
+    }
 
 
     private void otp_code() {
        final ProgressDialog dialog= new ProgressDialog(Signup.this);
+        dialog.setMessage("Loading....");
         dialog.show();
         RequestQueue volley= Volley.newRequestQueue(Signup.this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, Constant.OTP, new Response.Listener<String>() {

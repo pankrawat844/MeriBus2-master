@@ -14,6 +14,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ToggleButton;
 
 /**
  * Created by Admin on 5/3/2017.
@@ -30,6 +31,8 @@ public class Booking_Tab extends Fragment
 
         View view=inflater.inflate(R.layout.booking_tab,container,false);
         init(view);
+
+
         return view;
     }
 
@@ -37,6 +40,7 @@ public class Booking_Tab extends Fragment
 
         tabLayout=(TabLayout)v.findViewById(R.id.tabLayout);
         viewPager=(ViewPager)v.findViewById(R.id.viewPager);
+
             view_pager= new View_pager(getChildFragmentManager());
             viewPager.setAdapter(view_pager);
         tabLayout.setupWithViewPager(viewPager);

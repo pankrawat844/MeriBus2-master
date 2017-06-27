@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <item android:drawable="@mipmap/e_riksha_off" android:state_checked="false"/>
-    <item android:drawable="@mipmap/e_riksha_on" android:state_checked="true"/>
+    <item android:drawable="@mipmap/cab" android:state_checked="false"/>
+    <item android:drawable="@mipmap/cab_select" android:state_checked="true"/>
 
 </selector>

@@ -52,6 +52,10 @@ public class Payment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
     public class PagerAdapter1 extends FragmentStatePagerAdapter {
         int mNumOfTabs;

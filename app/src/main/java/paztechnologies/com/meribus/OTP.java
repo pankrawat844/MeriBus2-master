@@ -39,12 +39,18 @@ public class OTP extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(intent.getIntExtra("randomint",0)==Integer.valueOf(code.getText().toString())){
+                try {
+                    if (intent.getIntExtra("randomint", 0) == Integer.valueOf(code.getText().toString())) {
 
-                    new Call_Service().execute();
-                }else {
+                        new Call_Service().execute();
+                    } else {
 
-                    Toast.makeText(getApplicationContext(),"One Time Password is not Correct,Please Try Again.",Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "One Time Password is not Correct,Please Try Again.", Toast.LENGTH_LONG).show();
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Enter Only Numbers.", Toast.LENGTH_LONG).show();
+
                 }
             }
         });

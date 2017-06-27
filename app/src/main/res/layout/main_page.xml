@@ -36,14 +36,7 @@
                 android:text="Both"
                 android:textColor="#ffffff"
                 app:buttonTint="@color/background" />
-            <RadioButton
-                android:id="@+id/drop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Drop"
-                android:textColor="#ffffff"
-                app:buttonTint="@color/background" />
+
             <RadioButton
 
                 android:id="@+id/pickup"
@@ -51,6 +44,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Pickup"
+                android:textColor="#ffffff"
+                app:buttonTint="@color/background" />
+
+            <RadioButton
+                android:id="@+id/drop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Drop"
                 android:textColor="#ffffff"
                 app:buttonTint="@color/background" />
         </RadioGroup>
@@ -331,9 +333,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignLeft="@+id/e_riksha_toggle"
                     android:layout_below="@+id/e_riksha_toggle"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginLeft="30dp"
                     android:layout_marginTop="10dp"
-                    android:text="E-Riksha"
+                    android:text="Cab"
                     android:textStyle="bold" />
             </RelativeLayout>
 

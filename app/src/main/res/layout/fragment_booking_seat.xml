@@ -4,67 +4,39 @@
     android:layout_height="match_parent"
     tools:context="paztechnologies.com.meribus.Booking_seat">
 
-    <LinearLayout
-        android:id="@+id/linear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="7">
-<TextView
-    android:text="select"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textColor="#ffffff"
 
-    android:layout_weight="1"/>
-        <TextView
-            android:text="S.no"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-
-            android:layout_weight="0.5"/>
-
-        <TextView
-            android:text="Date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-
-            android:layout_weight="1.5"/>
-        <TextView
-            android:text="Total Seat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:layout_weight="1"/>
-        <TextView
-            android:text="Trip Type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-
-            android:layout_weight="1"/>
-
-        <TextView
-            android:text="How Many Seat?"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-
-            android:layout_weight="1"/>
-        <TextView
-            android:text="Amount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-
-            android:layout_weight="1"/>
-    </LinearLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/linear">
+        android:background="#fff"
+        android:layout_above="@+id/total_layout">
 
     </android.support.v7.widget.RecyclerView>
+
+    <RelativeLayout
+        android:id="@+id/total_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:padding="10dp"
+        android:layout_marginBottom="10dp">
+
+        <custom_font.MyTextView_Lato
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:textSize="28dp"
+            android:textColor="#fff"
+            android:text="TOTAL"/>
+        <custom_font.MyTextView_Lato
+            android:id="@+id/total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="10dp"
+            android:textSize="28dp"
+            android:textColor="#fff"
+            android:text=""/>
+    </RelativeLayout>
 </RelativeLayout>

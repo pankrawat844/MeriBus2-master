@@ -217,20 +217,20 @@ public class Home extends AppCompatActivity {
         item3.setIconImg(R.drawable.location);
         listDataHeader.add(item3);
 
-        ExpandedMenuModel item4 = new ExpandedMenuModel();
-        item4.setIconName("Privacy Policy");
-        item4.setIconImg(R.drawable.privatepolicy);
-        listDataHeader.add(item4);
-
-        ExpandedMenuModel item5 = new ExpandedMenuModel();
-        item5.setIconName("Partners/Clients");
-        item5.setIconImg(R.drawable.partners);
-        listDataHeader.add(item5);
-
-        ExpandedMenuModel item6 = new ExpandedMenuModel();
-        item6.setIconName("Careers");
-        item6.setIconImg(R.drawable.career);
-        listDataHeader.add(item6);
+//        ExpandedMenuModel item4 = new ExpandedMenuModel();
+//        item4.setIconName("Privacy Policy");
+//        item4.setIconImg(R.drawable.privatepolicy);
+//        listDataHeader.add(item4);
+//
+//        ExpandedMenuModel item5 = new ExpandedMenuModel();
+//        item5.setIconName("Partners/Clients");
+//        item5.setIconImg(R.drawable.partners);
+//        listDataHeader.add(item5);
+//
+//        ExpandedMenuModel item6 = new ExpandedMenuModel();
+//        item6.setIconName("Careers");
+//        item6.setIconImg(R.drawable.career);
+//        listDataHeader.add(item6);
 
         ExpandedMenuModel item7= new ExpandedMenuModel();
         item7.setIconName("Log Out");
@@ -239,14 +239,14 @@ public class Home extends AppCompatActivity {
         // Adding child data
         List<String> heading1 = new ArrayList<String>();
 
-        heading1.add("Book Monthly Seat");
-        heading1.add("Book Per Day Seat");
-        heading1.add("My Bookings");
-        List<String> heading2 = new ArrayList<String>();
-        heading2.add("Our Policy");
-        heading2.add("Terms Of Use");
-        heading2.add("Cancellations & Refunds");
-        heading2.add("FAQS");
+//        heading1.add("Book Monthly Seat");
+//        heading1.add("Book Per Day Seat");
+//        heading1.add("My Bookings");
+//        List<String> heading2 = new ArrayList<String>();
+//        heading2.add("Our Policy");
+//        heading2.add("Terms Of Use");
+//        heading2.add("Cancellations & Refunds");
+//        heading2.add("FAQS");
 
 //        listDataChild.put(listDataHeader.get(1), heading1);// Header, Child data
 //        listDataChild.put(listDataHeader.get(3), heading2);
