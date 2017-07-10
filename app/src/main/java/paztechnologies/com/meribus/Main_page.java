@@ -86,10 +86,14 @@ public class Main_page extends Fragment {
     SimpleDateFormat dateFormatter;
     TextView start_date,amount;
     List<String> pickupid_array;
+    List<String> pickup_latitude;
+    List<String> pickup_longtitude;
     SharedPreferences sp;
     int total_amount;
     ToggleButton non_ac_toggle,ac_toggle,cab_toggle;
-    HashMap<String,String> drop_route= new HashMap<>();
+    HashMap<String,String> drop_longtitude= new HashMap<>();
+    HashMap<String,String> drop_latitude= new HashMap<>();
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -98,12 +102,19 @@ public class Main_page extends Fragment {
 
         progressDialog = new ProgressDialog(getActivity());
         init(view);
-        drop_route.put("Cyber City Gurgaon","28.4936018,77.0861363");
-        drop_route.put("Shankar Chowk/cyber city","28.498576,77.0872363,17");
-        drop_route.put("Park centra","28.4602778,77.03814");
-        drop_route.put("Signature tower","28.4650399,77.051284");
-        drop_route.put("Iffco chowk","28.4707409,77.0710421");
-        drop_route.put("Airtel footover bridge","28.4905563,77.0816811");
+        drop_longtitude.put("Cyber City Gurgaon","77.0861363");
+        drop_longtitude.put("Shankar Chowk/cyber city","77.0872363");
+        drop_longtitude.put("Park centra","77.03814");
+        drop_longtitude.put("Signature tower","77.051284");
+        drop_longtitude.put("Iffco chowk","77.0710421");
+        drop_longtitude.put("Airtel footover bridge","77.0816811");
+
+        drop_latitude.put("Cyber City Gurgaon","28.4936018");
+        drop_latitude.put("Shankar Chowk/cyber city","28.498576");
+        drop_latitude.put("Park centra","28.4602778");
+        drop_latitude.put("Signature tower","28.4650399");
+        drop_latitude.put("Iffco chowk","28.4707409");
+        drop_latitude.put("Airtel footover bridge","28.4905563");
         new Start_Shift_Time().execute();
         place_ride.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,16 +123,19 @@ public class Main_page extends Fragment {
                 SharedPreferences.Editor editor = sp.edit();
                 if(seat_type.equals("Both Pickup and Drop")) {
                     if (select_start_time.getSelectedItem() != null && select_end_time.getSelectedItem() != null && select_route.getSelectedItem() != null && current_location.getSelectedItem() != null && des_location.getSelectedItem() != null && start_date.getText().length() != 0) {
-
                         editor.putString("start_time", select_start_time.getSelectedItem().toString());
                         editor.putString("end_time", select_end_time.getSelectedItem().toString());
-
                         editor.putString("route_name", select_route.getSelectedItem().toString());
                         editor.putString("route_id", route_id.get(select_route.getSelectedItemPosition()));
                         editor.putString("pick_point", current_location.getSelectedItem().toString());
                         editor.putString("drop_point", des_location.getSelectedItem().toString());
                         editor.putString("date", start_date.getText().toString());
                         editor.putString("amount",amount.getText().toString());
+                        editor.putString("pickup_lattiude",pickup_latitude.get(current_location.getSelectedItemPosition()-1));
+                        editor.putString("pickup_longitude",pickup_longtitude.get(current_location.getSelectedItemPosition()-1));
+                        editor.putString("drop_latitude",drop_latitude.get(des_location.getSelectedItem().toString()));
+                        editor.putString("drop_longtitude",drop_longtitude.get(des_location.getSelectedItem().toString()));
+
                         editor.commit();
                         Ride_Detail ride_detail = new Ride_Detail();
                         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
@@ -299,8 +313,11 @@ public class Main_page extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(current_location.getSelectedItem()!=null) {
                     new Rate().execute();
+
+
                 }
             }
+
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -363,7 +380,9 @@ public class Main_page extends Fragment {
 
                         }
                         else{
+
                             total_days+=1;
+
                         }
 
                     }
@@ -865,6 +884,7 @@ public class Main_page extends Fragment {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("RouteName"));
                     route_id.add(jsonObject.getString("routeId"));
+
                 }
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.select_route_list, time);
                 route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -910,7 +930,8 @@ public class Main_page extends Fragment {
             try {
                 List<String> time = new ArrayList<>();
                 pickupid_array= new ArrayList<>();
-                sds
+                pickup_latitude= new ArrayList<>();
+                pickup_longtitude= new ArrayList<>();
                 //   Toast.makeText(getActivity(),s,3).show();
                 JSONArray jsonArray = new JSONArray(s);
                 JSONArray arr = jsonArray.getJSONArray(0);
@@ -918,6 +939,8 @@ public class Main_page extends Fragment {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("PickUpName"));
                     pickupid_array.add(jsonObject.getString("PickUpId"));
+                    pickup_latitude.add(jsonObject.getString("Latitude"));
+                    pickup_longtitude.add(jsonObject.getString("Longitude"));
                 }
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.selected_pickup_location, time);
                 route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -961,12 +984,17 @@ public class Main_page extends Fragment {
 
             try {
                 List<String> time = new ArrayList<>();
+                pickup_latitude= new ArrayList<>();
+                pickup_longtitude= new ArrayList<>();
                 //   Toast.makeText(getActivity(),s,3).show();
                 JSONArray jsonArray = new JSONArray(s);
                 JSONArray arr = jsonArray.getJSONArray(0);
+
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("PickUpName"));
+                    pickup_latitude.add(jsonObject.getString("Latitude"));
+                    pickup_longtitude.add(jsonObject.getString("Longitude"));
                 }
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.selected_pickup_location, time);
                 route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -1003,7 +1031,7 @@ public class Main_page extends Fragment {
                 envelope.dotNet = true;
                 envelope.setOutputSoapObject(request);
                 HttpTransportSE androidHttpTransport =
-                        new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
+                       new HttpTransportSE("http://sales.meribus.com/Service1.svc", 5000);
                 androidHttpTransport.debug = true;
                 androidHttpTransport.call("http://tempuri.org/IService1/_getPickup_Point_When_RadioButton_Drop", envelope);
                 SoapPrimitive soapPrimitive = (SoapPrimitive) envelope.getResponse();
@@ -1052,9 +1080,13 @@ public class Main_page extends Fragment {
                 //   Toast.makeText(getActivity(),s,3).show();
                 JSONArray jsonArray = new JSONArray(s);
                 JSONArray arr = jsonArray.getJSONArray(0);
+                pickup_longtitude=new ArrayList<>();
+                pickup_latitude= new ArrayList<>();
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject jsonObject = arr.getJSONObject(i);
                     time.add(jsonObject.getString("PickUpName"));
+                    pickup_latitude.add(jsonObject.getString("Latitude"));
+                    pickup_longtitude.add(jsonObject.getString("Longitude"));
                 }
                 ArrayAdapter<String> route_adapter = new ArrayAdapter<String>(getActivity(), R.layout.selected_pickup_location, time);
                 route_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -1267,6 +1299,7 @@ public class Main_page extends Fragment {
             super.onPostExecute(s);
             //Log.e("resulttttt",s);
             dialog.dismiss();
+
 
             try {
                 List<String> time = new ArrayList<>();

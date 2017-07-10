@@ -238,8 +238,34 @@
             android:textSize="17dp"
             app:backgroundTint="#f3d02a"></paztechnologies.com.meribus.custom_font.MyTextView_Lato>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_alignBottom="@+id/start_date"
+            android:layout_marginBottom="20dp"
+            android:background="@color/textcolor" />
 
 
+        <paztechnologies.com.meribus.custom_font.MyTextView_Lato
+            android:id="@+id/coupon_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/two_way_layout"
+            android:layout_marginTop="10dp"
+            android:drawablePadding="5dp"
+            android:hint="Coupon Code"
+            android:padding="10dp"
+            android:textColor="#ffffff"
+            android:textColorHint="@color/textcolor2"
+            android:textSize="17dp"
+            app:backgroundTint="#f3d02a"></paztechnologies.com.meribus.custom_font.MyTextView_Lato>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_alignBottom="@+id/coupon_code"
+            android:layout_marginBottom="20dp"
+            android:background="@color/textcolor" />
         
 
         <RelativeLayout

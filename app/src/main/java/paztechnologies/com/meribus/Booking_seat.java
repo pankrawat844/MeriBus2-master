@@ -2,6 +2,10 @@ package paztechnologies.com.meribus;
 
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,12 +39,14 @@ import paztechnologies.com.meribus.model.Pay_Per_Day_Model;
  * A simple {@link Fragment} subclass.
  */
 public class Booking_seat extends Fragment {
-
         RecyclerView recyclerView;
         List<Pay_Per_Day_Model> list= new ArrayList<>();
         Pay_Per_Day_Adapter adapter;
     String pickup_response,_routeId,StartShiftTime,EndShiftTime,Seattype,per_seat_price;
+    public static final String TOTAL_STATUS_FILTER = "paztechnologies.com.meribus.totalfilter";
     String[] temp=new String[]{};
+    int total=0;
+    TextView total_txt;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -51,16 +58,21 @@ public class Booking_seat extends Fragment {
         Seattype=getArguments().getString("Seattype");
         per_seat_price=getArguments().getString("perseat_price");
          recyclerView=(RecyclerView)view.findViewById(R.id.recycler_view);
+        total_txt=(TextView)view.findViewById(R.id.total);
         adapter= new Pay_Per_Day_Adapter(list,getActivity(),temp);
         RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         new Seat_Count().execute();
+        getActivity().registerReceiver(update_total,new IntentFilter(TOTAL_STATUS_FILTER));
         return view;
     }
 
-
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(update_total);
+    }
 
     private class Seat_Count extends AsyncTask<String[], Void, String> {
 
@@ -159,5 +171,27 @@ public class Booking_seat extends Fragment {
             Log.e("TAG", "Soap Exception" + e.toString());
         }
     }
+
+
+    BroadcastReceiver update_total= new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try {
+                if (intent.getBooleanExtra("ischecked", false)) {
+                    total = total+intent.getIntExtra("total", 0);
+                    total_txt.setText(String.valueOf(total));
+                } else {
+                // if (Integer.valueOf(total_txt.getText().toString()) >= 0)
+                    total = total - intent.getIntExtra("total", 0);
+                    total_txt.setText(String.valueOf(total));
+
+               }
+            }catch (Exception e){
+
+                e.printStackTrace();
+            }
+        }
+    };
 }
 

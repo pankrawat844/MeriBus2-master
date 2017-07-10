@@ -240,6 +240,7 @@ public class Login extends AppCompatActivity implements GoogleApiClient.OnConnec
                         editor.putBoolean("islogin", true);
                         editor.putString("name", jsonObject.getString("name"));
                         editor.putString("password", jsonObject.getString("password"));
+                        editor.putString("pid", jsonObject.getString("pid"));
                         editor.putString("email", jsonObject.getString("emailid"));
                         editor.putString("phoneno", jsonObject.getString("phonenumber"));
                         editor.putString("gender", jsonObject.getString("gender"));

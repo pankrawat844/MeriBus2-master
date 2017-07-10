@@ -1,6 +1,7 @@
 package paztechnologies.com.meribus.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.List;
 
+import paztechnologies.com.meribus.Booking_seat;
 import paztechnologies.com.meribus.DatabaseHelper.SeatDatabase;
 import paztechnologies.com.meribus.R;
 import paztechnologies.com.meribus.model.Pay_Per_Day_Model;
@@ -42,7 +44,7 @@ public class Pay_Per_Day_Adapter extends RecyclerView.Adapter<Pay_Per_Day_Adapte
             this.list=list;
             this.ctx=ctx;
             this.temp=temp;
-            sp= ctx.getSharedPreferences("pref",0);
+            sp= ctx.getSharedPreferences("app",0);
 
 
         }
@@ -114,12 +116,18 @@ public class Pay_Per_Day_Adapter extends RecyclerView.Adapter<Pay_Per_Day_Adapte
 //                        }catch ( Exception e){
 //                            e.printStackTrace();
 //                        }
+
                     }else{
 
                          Toast.makeText(ctx,"You have applied for maximum seats.",Toast.LENGTH_SHORT).show();
                          }
+
                 }catch (Exception e){
                     e.printStackTrace();
+                }
+                notifyDataSetChanged();
+                if(holder.select_check.isChecked()){
+                    sendBroadcast(Integer.valueOf(holder.per_seat_price.getText().toString()), true);
                 }
             }
         });
@@ -128,28 +136,88 @@ public class Pay_Per_Day_Adapter extends RecyclerView.Adapter<Pay_Per_Day_Adapte
             @Override
             public void onClick(View v) {
                 try {
+                    //  Toast.makeText(ctx, "You have appied for maximum seats.", Toast.LENGTH_SHORT).show();
+                    int totalseat = Integer.valueOf(holder.total_seat.getText().toString());
+                    int seat=Integer.valueOf(holder.seat.getText().toString());
+                    Log.e("seat",holder.seat.getText().toString());
+                    Log.e("totalseat",(holder.total_seat.getText().toString()));
+                    Log.e("per seat",String.valueOf(Integer.valueOf(holder.per_seat_price.getText().toString()) * Integer.valueOf(totalseat)));
+                    --seat;
+                    if (seat >= 0) {
 
 
-                    if (Integer.valueOf(holder.seat.getText().toString()) >=0) {
-                        int totalseat = Integer.valueOf(holder.total_seat.getText().toString());
-                        totalseat -= 1;
-                        holder.seat.setText(totalseat);
-                        int total = Integer.valueOf(holder.per_seat_price.getText().toString()) * Integer.valueOf(totalseat);
-                        holder.total_price.setText(total);
-                        Log.e("totalllllllllll", "" + total);
+                        int total = Integer.valueOf(holder.per_seat_price.getText().toString()) * Integer.valueOf(seat);
+//                        model.setPer_seat_total(String.valueOf(total));
+//                        model.setSeats(String.valueOf(totalseat));
+//                        notifyDataSetChanged();
+                        Log.e("totalllllllllll", ""+total);
+                        //   holder.updateText(total);
+                        editor.putInt("seat"+position,seat);
+                        editor.putInt("total"+position,total);
+                        editor.commit();
+                        holder.total_price.setText(String.valueOf(sp.getInt("total"+position,0)));
+                        holder.seat.setText(String.valueOf(sp.getInt("seat"+position,0)));
 
-                    } else {
-                       // Toast.makeText(ctx, "You have appied for maximum seats.", Toast.LENGTH_SHORT).show();
+
+
+
+
+//                        int temp;
+//                        try {
+//                            temp = Integer.parseInt(holder.seat.getText()
+//                                    .toString());
+//                        } catch (Exception e) {
+//                            // TODO: handle exception
+//                            temp = 0;
+//                            e.printStackTrace();
+//                        }
+//
+//                        ++temp;
+//                        try{
+//                            SeatDatabase helper = SeatDatabase
+//                                    .newInstance(ctx);
+//                            helper.openDataBase();
+//
+//                        }catch ( Exception e){
+//                            e.printStackTrace();
+//                        }
+
+                    }else{
+
+                      //  Toast.makeText(ctx,"You have applied for maximum seats.",Toast.LENGTH_SHORT).show();
                     }
-                }
-            catch(Exception e){
+
+
+                }catch (Exception e){
                     e.printStackTrace();
+                }
+                notifyDataSetChanged();
+                if(holder.select_check.isChecked()){
+                    if(holder.seat.getText().equals("0")) {
+                        sendBroadcast(Integer.valueOf(holder.per_seat_price.getText().toString()), false);
+                    }else {
+                        sendBroadcast(Integer.valueOf(holder.per_seat_price.getText().toString()), false);
+
+                    }
                 }
             }
         });
+        holder.select_check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                try {
+                    sendBroadcast(Integer.valueOf(holder.total_price.getText().toString()), isChecked);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                }
+        });
     }
 
-
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
     @Override
     public int getItemCount() {
@@ -213,5 +281,12 @@ public class Pay_Per_Day_Adapter extends RecyclerView.Adapter<Pay_Per_Day_Adapte
         public void afterTextChanged(Editable editable) {
             // no op
         }
+    }
+
+    private void sendBroadcast(int total,boolean ischecked){
+        Intent intent= new Intent(Booking_seat.TOTAL_STATUS_FILTER);
+        intent.putExtra("ischecked",ischecked);
+        intent.putExtra("total",total);
+        ctx.sendBroadcast(intent);
     }
     }

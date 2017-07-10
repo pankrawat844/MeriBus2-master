@@ -12,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,13 @@ import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.constant.TransportMode;
 import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.util.DirectionConverter;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,7 +39,9 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.vision.barcode.Barcode;
 
@@ -42,7 +52,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Handler;
 
 import cz.msebera.android.httpclient.HttpEntity;
@@ -60,10 +72,10 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
     private GoogleMap googleMap;
     private MapView mMapView;
     //private LatLng camera = new LatLng(28.6158851, 77.0406466);
-    private LatLng curr =new LatLng(28.6168968, 77.0459028);
-    private LatLng des = new LatLng(28.6158851, 77.0406466);
+    private LatLng curr ;
+    private LatLng des ;
     private Button payment;
-    private TextView start_time,end_time,select_route,pickup_point,drop_point,amount;
+    private TextView start_time,end_time,select_route,pickup_point,drop_point,amount,distance_txt,time_txt;
     SharedPreferences sharedPreferences;
 
     @Override
@@ -90,12 +102,16 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
         MapsInitializer.initialize(this.getActivity());
         init(view);
              sharedPreferences= getActivity().getSharedPreferences("app",0);
-            start_time.setText(sharedPreferences.getString("start_time",""));
+            curr= new LatLng(Double.valueOf(sharedPreferences.getString("pickup_lattiude","")),Double.valueOf(sharedPreferences.getString("pickup_longitude",""))) ;
+        des= new LatLng(Double.valueOf(sharedPreferences.getString("drop_latitude","28.6158851")),Double.valueOf(sharedPreferences.getString("drop_longtitude","77.0406466"))) ;
+            Toast.makeText(getActivity(),sharedPreferences.getString("drop_latitude","28.6158851")+sharedPreferences.getString("drop_longtitude","77.0406466"),3);
+        start_time.setText(sharedPreferences.getString("start_time",""));
             end_time.setText(sharedPreferences.getString("end_time",""));
             select_route.setText(sharedPreferences.getString("route_name",""));
             pickup_point.setText( sharedPreferences.getString("pick_point",""));
             drop_point.setText( sharedPreferences.getString("drop_point",""));
             amount.setText("RS "+sharedPreferences.getString("amount",""));
+
             SupportMapFragment mapFragment = (SupportMapFragment)getChildFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -121,7 +137,8 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
             drop_point=(TextView)v.findViewById(R.id.des);
             amount=(TextView)v.findViewById(R.id.total);
             payment = (Button) v.findViewById(R.id.submit);
-
+            distance_txt=(TextView)v.findViewById(R.id.distance);
+            time_txt=(TextView)v.findViewById(R.id.time);
         }
     @Override
     public void onClick(View v) {
@@ -141,11 +158,11 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
 //        Toast.makeText(getActivity(), " " + direction.getStatus(), Toast.LENGTH_SHORT).show();
 
         if (direction.isOK()) {
-            googleMap.addMarker(new MarkerOptions().position(curr));
-            googleMap.addMarker(new MarkerOptions().position(des));
+            googleMap.addMarker(new MarkerOptions().position(curr).icon(BitmapDescriptorFactory.fromResource(R.mipmap.icon_point)));
+            googleMap.addMarker(new MarkerOptions().position(des).icon(BitmapDescriptorFactory.fromResource(R.mipmap.icon_point)));
             ArrayList<LatLng> directionPositionList = direction.getRouteList().get(0).getLegList().get(0).getDirectionPoint();
-            googleMap.addPolyline(DirectionConverter.createPolyline(getActivity(), directionPositionList, 5, Color.RED));
-
+            googleMap.addPolyline(DirectionConverter.createPolyline(getActivity(), directionPositionList, 5, Color.YELLOW));
+            getdistancentime();
         }
     }
 
@@ -159,7 +176,10 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curr, 15));
+        this.googleMap.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                        getActivity(), R.raw.maps_style));
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(curr, 9));
 
 //        LatLng latlong = new LatLng(28.6158851,77.0406466);
 //        googleMap.addMarker(new MarkerOptions().position(latlong)
@@ -182,127 +202,54 @@ public class Ride_Detail extends Fragment implements OnMapReadyCallback, View.On
     }
 
 
-    public  void getLocationInfo(String address) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
 
-            address = address.replaceAll(" ","%20");
-
-            HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" + address + "&sensor=false");
-            HttpClient client = new DefaultHttpClient();
-            HttpResponse response;
-            stringBuilder = new StringBuilder();
-
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            response = client.execute(httppost);
-            HttpEntity entity = response.getEntity();
-            InputStream stream = entity.getContent();
-            int b;
-            while ((b = stream.read()) != -1) {
-                stringBuilder.append((char) b);
-            }
-        }
-        catch (IOException e) {
-        }
-
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject = new JSONObject(stringBuilder.toString());
-            curr=getLatLong(jsonObject);
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-
-    }
-    public  LatLng getLatLong(JSONObject jsonObject) {
-
-        try {
-
-            double longitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lng");
-
-            double latitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat");
-            curr= new LatLng(latitude,longitude);
-
-        } catch (JSONException e) {
-            return curr;
-
-        }
-
-        return curr;
-    }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
     }
 
-    public  void getLocationInfo_des(String address) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
 
-            address = address.replaceAll(" ","%20");
+    private  void getdistancentime(){
+        RequestQueue requestQueue= Volley.newRequestQueue(getActivity());
+        String url= "https://maps.googleapis.com/maps/api/distancematrix/json?units=km&origins="+sharedPreferences.getString("pickup_lattiude","")+","+sharedPreferences.getString("pickup_longitude","")+"&destinations="+sharedPreferences.getString("drop_latitude","28.6158851")+","+sharedPreferences.getString("drop_longtitude","28.6158851")+"&key="+Server_Key;
+        StringRequest request= new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject respons = new JSONObject(response);
+                    JSONArray row= respons.getJSONArray("rows");
+                    JSONObject row_obj= row.getJSONObject(0);
+                    JSONArray row_arr= row_obj.getJSONArray("elements");
+                    JSONObject elem_obj=row_arr.getJSONObject(0);
+                    JSONObject distance= elem_obj.getJSONObject("distance");
+                    distance_txt.setText(distance.getString("text"));
+                    JSONObject time= elem_obj.getJSONObject("duration");
+                    time_txt.setText(time.getString("text"));
 
-            HttpPost httppost = new HttpPost("http://maps.google.com/maps/api/geocode/json?address=" +address+ "&sensor=false");
-            HttpClient client = new DefaultHttpClient();
-            HttpResponse response;
-            stringBuilder = new StringBuilder();
-
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            response = client.execute(httppost);
-            HttpEntity entity = response.getEntity();
-            InputStream stream = entity.getContent();
-            int b;
-            while ((b = stream.read()) != -1) {
-                stringBuilder.append((char) b);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             }
-        }
-        catch (IOException e) {
-        }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ErrorListner",error.getMessage());
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                HashMap<String, String> map= new HashMap<>();
+                map.put("units","km");
+                map.put("origins",sharedPreferences.getString("pickup_lattiude","")+","+sharedPreferences.getString("pickup_longitude",""));
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject = new JSONObject(stringBuilder.toString());
-            des=getLatLong_des(jsonObject);
-        } catch (JSONException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-
+                map.put("destinations",sharedPreferences.getString("drop_latitude","28.6158851")+","+sharedPreferences.getString("drop_longtitude","28.6158851"));
+                map.put("key",Server_Key);
+                return map;
+            }
+        };
+        requestQueue.add(request);
     }
-    public  LatLng getLatLong_des(JSONObject jsonObject) {
-
-        try {
-
-            double longitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lng");
-
-            double latitude = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
-                    .getJSONObject("geometry").getJSONObject("location")
-                    .getDouble("lat");
-            des= new LatLng(latitude,longitude);
-            GoogleDirection.withServerKey(Server_Key)
-                    .from(curr)
-                    .to(des)
-                    .transportMode(TransportMode.DRIVING)
-                    .execute(this);
-        } catch (JSONException e) {
-            return null;
-
-        }
-
-        return des;
-    }
-
 
 
 }

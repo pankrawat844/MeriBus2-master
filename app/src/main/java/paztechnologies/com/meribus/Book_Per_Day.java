@@ -229,6 +229,7 @@ public class Book_Per_Day extends Fragment {
                       //  args.putString("EndShiftTime",end_time_id.get(select_end_time.getSelectedItemPosition()-1));
                         args.putString("Seattype",seat_type);
                         args.putString("perseat_price",String.valueOf(per_day_total));
+
                         ride_detail.setArguments(args);
                         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                         fragmentTransaction.replace(R.id.container, ride_detail).addToBackStack("");
